@@ -21,23 +21,32 @@ def guess_charset(msg):
     return charset
 
 
-def print_info(msg, indent=0):
+def print_part(msg):
+    rs = ""
+    content_type = msg.get_content_type()
+    if content_type == 'text/plain' or content_type == 'text/html':
+        content = msg.get_payload(decode=True)
+        charset = guess_charset(msg)
+        if charset:
+            content = content.decode(charset)
+        rs = rs + str(content)
+    else:
+        rs = rs + content_type
+    return rs
+
+
+def print_info(msg):
     rs = ""
     if (msg.is_multipart()):
         parts = msg.get_payload()
         for n, part in enumerate(parts):
-            print_info(part, indent + 1)
+            if part.is_multipart():
+                rs = rs + print_info(part)
+            else:
+                rs = rs + print_part(part)
     else:
-        content_type = msg.get_content_type()
-        if content_type == 'text/plain' or content_type == 'text/html':
-            content = msg.get_payload(decode=True)
-            charset = guess_charset(msg)
-            if charset:
-                content = content.decode(charset)
-            rs = rs + str(content)
-        else:
-            rs = rs + content_type
-    return rs
+        return print_part(msg)
+    return part
 
 
 class CrazySrvHandler:
@@ -50,7 +59,6 @@ class CrazySrvHandler:
     async def handle_DATA(self, server, session, envelope):
         mail_from = envelope.mail_from
         rcpt_tos = envelope.rcpt_tos
-        # message = Parser().parsestr(envelope.content)
         message = email.message_from_bytes(envelope.content)
         content = print_info(message)
         subject = decode_str(message['Subject'])
@@ -64,6 +72,6 @@ class CrazySrvHandler:
 
         self.dao.store_msg(obj)
 
-        print("success record msg:" + mail_from + "->" +  str(rcpt_tos) + "|" + str(subject))
+        print("success record msg:" + mail_from + "->" + str(rcpt_tos) + "|" + str(subject))
 
         return '250 Message accepted for delivery'
