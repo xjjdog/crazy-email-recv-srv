@@ -21,19 +21,19 @@ class DataAccess:
 
     def read_from(self, frm):
         c = self.conn.cursor()
-        t = c.execute("select * from msg where frm = ? limit 100", (frm,))
+        t = c.execute("select * from msg where frm = ? order by createDate desc limit 100", (frm,))
         rs = t.fetchall()
         return self.transform(rs)
 
     def read_to(self, to):
         c = self.conn.cursor()
-        t = c.execute("select * from msg where to0 = ? limit 100", (to,))
+        t = c.execute("select * from msg where to0 = ? order by createDate desc limit 100", (to,))
         rs = t.fetchall()
         return self.transform(rs)
 
     def read_all(self):
         c = self.conn.cursor()
-        t = c.execute("select * from msg limit 100")
+        t = c.execute("select * from msg order by createDate desc limit 100")
         rs = t.fetchall()
         return self.transform(rs)
 
