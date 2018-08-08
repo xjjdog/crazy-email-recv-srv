@@ -1,8 +1,5 @@
 import email
-from email.message import Message
-from email.parser import Parser
 from email.header import decode_header
-from email.utils import parseaddr
 
 from data import dataInstance
 
@@ -25,22 +22,10 @@ def guess_charset(msg):
 
 
 def print_info(msg, indent=0):
-    if indent == 0:
-        for header in ['From', 'To', 'Subject']:
-            value = msg.get(header, '')
-            if value:
-                if header == 'Subject':
-                    value = decode_str(value)
-                else:
-                    hdr, addr = parseaddr(value)
-                    name = decode_str(hdr)
-                    value = u'%s <%s>' % (name, addr)
-            print('%s%s: %s' % ('  ' * indent, header, value))
+    rs = ""
     if (msg.is_multipart()):
         parts = msg.get_payload()
         for n, part in enumerate(parts):
-            print('%spart %s' % ('  ' * indent, n))
-            print('%s--------------------' % ('  ' * indent))
             print_info(part, indent + 1)
     else:
         content_type = msg.get_content_type()
@@ -49,21 +34,10 @@ def print_info(msg, indent=0):
             charset = guess_charset(msg)
             if charset:
                 content = content.decode(charset)
-            print('%sText: %s' % ('  ' * indent, content))
+            rs = rs + str(content)
         else:
-            print('%sAttachment: %s' % ('  ' * indent, content_type))
-
-
-def message_to_display(message):
-    print_info(message)
-    result = ''
-    if message.is_multipart():
-        for sub_message in message.get_payload():
-            result += message_to_display(sub_message)
-    else:
-        result = f"Content-type: {message.get_content_type()}\n" \
-                 f"{message.get_payload()}\n" + "*" * 76 + '\n'
-    return result
+            rs = rs + content_type
+        return rs
 
 
 class CrazySrvHandler:
@@ -78,8 +52,8 @@ class CrazySrvHandler:
         rcpt_tos = envelope.rcpt_tos
         # message = Parser().parsestr(envelope.content)
         message = email.message_from_bytes(envelope.content)
-        content = message_to_display(message)
-        subject = message['Subject']
+        content = print_info(message)
+        subject = decode_str(message['Subject'])
 
         obj = {
             "from": mail_from,
@@ -90,6 +64,6 @@ class CrazySrvHandler:
 
         self.dao.store_msg(obj)
 
-        print(self.dao.read_from(obj['from']))
+        print("success record msg:" + mail_from + "->" +  str(rcpt_tos) + "|" + str(subject))
 
         return '250 Message accepted for delivery'
