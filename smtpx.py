@@ -31,7 +31,7 @@ def print_part(msg):
             content = content.decode(charset)
         rs = rs + str(content)
     else:
-        rs = rs + content_type
+        rs = rs + str(content_type)
     return rs
 
 
@@ -46,7 +46,7 @@ def print_info(msg):
                 rs = rs + print_part(part)
     else:
         return print_part(msg)
-    return part
+    return rs
 
 
 class CrazySrvHandler:
