@@ -37,7 +37,7 @@ def print_info(msg, indent=0):
             rs = rs + str(content)
         else:
             rs = rs + content_type
-        return rs
+    return rs
 
 
 class CrazySrvHandler:
