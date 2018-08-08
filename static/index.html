@@ -1,0 +1,124 @@
+<html>
+
+    <head>
+        <title>crazy email recv srv</title>
+        <link href="https://cdn.bootcss.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.bootcss.com/bootstrap-table/1.12.1/bootstrap-table.min.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="jumbotron" style="padding-top:2px;padding-bottom:2px">
+                <h1>Crazy Email Reciver Service</h1>
+                <p class="lead">Use this mock your email server , just for recive . USAGE: such as batch register . This page only show the most recently emails ( about 100 items) 
+                <button id="from_btn" type="submit" class="btn btn-default">github</button> <a target="_blank" href="https://github.com/lycying/crazy-email-recv-srv">https://github.com/lycying/crazy-email-recv-srv</a>
+                </p>
+            </div>
+            <div id="toolbar">
+                <div class="form-inline" role="form">
+                    <div class="form-group">
+                        <input id="from" class="form-control" type="text" placeholder="From">
+                    </div>
+                    <button id="from_btn" type="submit" class="btn btn-success">Search</button>
+
+                    &nbsp;
+                    &nbsp;
+                    &nbsp;
+                    &nbsp;
+                    &nbsp;
+                    &nbsp;
+
+
+                    <div class="form-group">
+                        <input id="to" class="form-control" type="text" placeholder="To">
+                    </div>
+                    <button id="to_btn" type="submit" class="btn btn-success">Search</button>
+                </div>
+
+            </div>
+            <table id="table"
+                   data-toolbar="#toolbar"
+                   data-show-columns="true">
+                <thead>
+                    <tr>
+                        <th data-field="from">From</th>
+                        <th data-field="to0">To[0]</th>
+                        <th data-field="to">To[ALL]</th>
+                        <th data-field="subject">Subject</th>
+                        <th data-field="content">Content</th>
+                        <th data-field="time">Date</th>
+
+                    </tr>
+                </thead>
+            </table>
+
+            <div class="jumbotron">
+                <h2>API</h2>
+                <b>/all </b>  get all emails (limit 100) <br/>
+                <b>/from/{addr}</b>  get emails from addr (limit 100)<br/>
+                <b>/to/{addr}</b>  get emails to addr(limit 100)<br/>
+                <p class="lead">
+                example:
+                <pre>
+ [{
+		"from": "a@example.com",
+		"to0": "b@example.com",
+		"to": ["b@example.com"],
+		"subject": "A test",
+		"content": "xxxxxxxxxxxxxxxxx*
+}]
+                </pre>
+                </p>
+            </div>
+        </div>
+
+        <script src="https://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+        <script>
+
+            $.getJSON("all",function(data){
+                var $table = $('#table');
+                $table.bootstrapTable({data: data});
+            });
+
+$("#from_btn").click(function(){
+    from=$("#from").val();
+    if(from==""){
+        $.getJSON("all",function(data){
+            var $table = $('#table');
+            $table.bootstrapTable('removeAll');
+            $table.bootstrapTable('append',data);
+        });
+    }else{
+        $.getJSON("from/"+from,function(data){
+            var $table = $('#table');
+            $table.bootstrapTable('removeAll');
+            $table.bootstrapTable('append',data);
+        });
+    }
+});
+$("#to_btn").click(function(){
+    from=$("#to").val();
+    if(from==""){
+        $.getJSON("all",function(data){
+            var $table = $('#table');
+            $table.bootstrapTable('removeAll');
+            $table.bootstrapTable('append',data);
+        });
+    }else{
+        $.getJSON("to/"+from,function(data){
+            var $table = $('#table');
+            $table.bootstrapTable('removeAll');
+            $table.bootstrapTable('append',data);
+        });
+    }
+});
+
+
+
+
+        </script>
+    </body>
+
+</html>
