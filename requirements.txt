@@ -1,2 +1,3 @@
 aiosmtpd
 flask
+Flask-HTTPAuth

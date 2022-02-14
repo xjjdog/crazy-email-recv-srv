@@ -1,5 +1,5 @@
 from smtpx import CrazySrvHandler
-from web import web_start
+from web import web_start, app
 
 from aiosmtpd.controller import Controller
 from aiosmtpd.smtp import SMTP
@@ -14,6 +14,10 @@ if __name__ == "__main__":
 
     rest_host = smtpd_host
     rest_port = cf.getint("rest", "port")
+
+    users = {cf.get('auth', 'user'): cf.get('auth', 'password')}
+    app.config['users'] = users
+
 
     handler = CrazySrvHandler()
     controller = Controller(handler, hostname=smtpd_host, port=smtpd_port)
