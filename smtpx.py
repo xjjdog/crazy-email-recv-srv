@@ -37,7 +37,7 @@ def print_part(msg):
 
 def print_info(msg):
     rs = ""
-    if (msg.is_multipart()):
+    if msg.is_multipart():
         parts = msg.get_payload()
         for n, part in enumerate(parts):
             if part.is_multipart():
@@ -51,6 +51,14 @@ def print_info(msg):
 
 class CrazySrvHandler:
     dao = dataInstance
+
+    def __init__(self, domains=''):
+        self.white_domains = domains
+
+    def _is_white_domain(self, domain):
+        # 简单计算rootdomain
+        root_domain = '.'.join(domain.split('.')[-2:])
+        return root_domain in self._white_domains
 
     async def handle_RCPT(self, server, session, envelope, address, rcpt_options):
         envelope.rcpt_tos.append(address)
