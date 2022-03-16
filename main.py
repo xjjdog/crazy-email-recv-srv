@@ -21,7 +21,7 @@ if __name__ == "__main__":
     users = {cf.get('auth', 'user'): password}
     app.config['users'] = users
 
-    handler = CrazySrvHandler()
+    handler = CrazySrvHandler(domains)
     controller = Controller(handler, hostname=smtpd_host, port=smtpd_port)
     controller.factory = lambda: SMTP(handler, enable_SMTPUTF8=True)
 
