@@ -53,12 +53,12 @@ class CrazySrvHandler:
     dao = dataInstance
 
     def __init__(self, domains=''):
-        self._white_domains = domains
+        self._white_domains = [x.strip() for x in domains.split(',')]
 
     def _is_white_domain(self, domain):
-        # 简单计算rootdomain
-        root_domain = '.'.join(domain.split('.')[-2:])
-        return self._white_domains and root_domain in self._white_domains
+        if not self._white_domains:
+            return True
+        return domain in self._white_domains
 
     async def handle_RCPT(self, server, session, envelope, address, rcpt_options):
         envelope.rcpt_tos.append(address)
@@ -77,9 +77,10 @@ class CrazySrvHandler:
             "subject": subject,
             "content": content
         }
+        dst_domain = str(rcpt_tos).split('@')[-1]
+        if not self._is_white_domain(dst_domain):
+            return '250 Message accepted for delivery'
 
         self.dao.store_msg(obj)
-
         print("success record msg:" + mail_from + "->" + str(rcpt_tos) + "|" + str(subject))
-
         return '250 Message accepted for delivery'
