@@ -37,7 +37,7 @@ def print_part(msg):
 
 def print_info(msg):
     rs = ""
-    if (msg.is_multipart()):
+    if msg.is_multipart():
         parts = msg.get_payload()
         for n, part in enumerate(parts):
             if part.is_multipart():
@@ -51,6 +51,14 @@ def print_info(msg):
 
 class CrazySrvHandler:
     dao = dataInstance
+
+    def __init__(self, domains=''):
+        self._white_domains = [x.strip() for x in domains.split(',')]
+
+    def _is_white_domain(self, domain):
+        if not self._white_domains:
+            return True
+        return domain in self._white_domains
 
     async def handle_RCPT(self, server, session, envelope, address, rcpt_options):
         envelope.rcpt_tos.append(address)
@@ -69,9 +77,10 @@ class CrazySrvHandler:
             "subject": subject,
             "content": content
         }
+        dst_domain = str(rcpt_tos).split('@')[-1]
+        if not self._is_white_domain(dst_domain):
+            return '250 Message accepted for delivery'
 
         self.dao.store_msg(obj)
-
         print("success record msg:" + mail_from + "->" + str(rcpt_tos) + "|" + str(subject))
-
         return '250 Message accepted for delivery'

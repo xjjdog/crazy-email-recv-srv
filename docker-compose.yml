@@ -1,0 +1,10 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports: 
+      - "25:25"
+      - "14000:14000"
+    environment:
+      - user=admin
+      - password=changeme111
