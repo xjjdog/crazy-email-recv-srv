@@ -37,6 +37,12 @@ class DataAccess:
         rs = t.fetchall()
         return self.transform(rs)
 
+    def clear(self):
+        c = self.conn.cursor()
+        t = c.execute("delete * from msg")
+        rs = t.fetchall()
+        return self.transform(rs)
+
     def transform(self, all):
         rs = []
         for item in all:
@@ -50,6 +56,5 @@ class DataAccess:
             }
             rs.append(p)
         return rs
-
 
 dataInstance = DataAccess()

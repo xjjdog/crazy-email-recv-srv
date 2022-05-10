@@ -46,3 +46,10 @@ def msg_from(addr):
 def msg_to(addr):
     rows = dao.read_to(addr)
     return json.dumps(rows)
+
+
+@app.route('/clear')
+@auth.login_required
+def msg_to():
+    rows = dao.clear()
+    return json.dumps(rows)
