@@ -18,7 +18,8 @@ if __name__ == "__main__":
     rest_port = cf.getint("rest", "port")
 
     password = os.environ['password'] if os.environ['password'] else cf.get('auth', 'password')
-    users = {cf.get('auth', 'user'): password}
+    user = os.environ['user'] if os.environ['user'] else cf.get('auth', 'user')
+    users = {user: password}
     app.config['users'] = users
 
     handler = CrazySrvHandler(domains)
